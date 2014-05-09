@@ -1,18 +1,18 @@
 #!/bin/sh
 
 # 2014 Jon Suderman
-# https://github.com/suderman/launchup/
+# https://github.com/suderman/launchup
 
-if [ -z $LAUNCHUP_PLISTS ]; then
-  echo "Error: LAUNCHUP_PLISTS environment variable is empty!"
+if [ -z $LAUNCHD_PLISTS ]; then
+  echo "Error: LAUNCHD_PLISTS environment variable is empty!"
   echo "Please tell launchup which directory to find your plists."
   echo "For example:"
-  echo "export LAUNCHUP_PLISTS=\"~/.launchd\""
+  echo "export LAUNCHD_PLISTS=\"~/.launchd\""
   exit;
 fi
 
 # Expand tilde just in case
-eval plist_dir=$LAUNCHUP_PLISTS
+eval plist_dir=$LAUNCHD_PLISTS
 
 # Called three times
 __launchup() {
