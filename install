@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# 2014 Jon Suderman
+# https://github.com/suderman/launchup/
+
+# Open a terminal and run this command:
+# curl https://launchup.suderman.io/install | sh
+
+# Ensure /usr/local/bin exists
+if [ ! -d "/usr/local" ]; then
+  sudo mkdir -p /usr/local/bin
+  ULB_OWNER=`whoami`:`ls -ld /usr | awk '{print $4}'`
+  sudo chown $ULB_OWNER /usr/{local,local/bin}
+fi
+
+# Download launchup & launchdn into /usr/local/bin
+sudo curl https://raw.githubusercontent.com/suderman/launchup/master/launchup -o /usr/local/bin/launchup
+sudo curl https://raw.githubusercontent.com/suderman/launchup/master/launchdn -o /usr/local/bin/launchdn
+
+# Set permissions
+ULB_OWNER=`ls -ld /usr/local/bin | awk '{print $3}'`:`ls -ld /usr/local/bin | awk '{print $4}'`
+sudo chown $ULB_OWNER /usr/local/bin/launchup 
+sudo chown $ULB_OWNER /usr/local/bin/launchdn 
+sudo chmod +x /usr/local/bin/launchup
+sudo chmod +x /usr/local/bin/launchdn
+
+echo "Installed launchup & launchdn to /usr/local/bin"
+
