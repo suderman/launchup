@@ -1,0 +1,79 @@
+#!/bin/sh
+
+# 2014 Jon Suderman
+# https://github.com/suderman/launchup/
+
+if [ -z $LAUNCHUP_PLISTS ]; then
+  echo "Error: LAUNCHUP_PLISTS environment variable is empty!"
+  echo "Please tell launchup which directory to find your plists."
+  echo "For example:"
+  echo "export LAUNCHUP_PLISTS=\"~/.launchd\""
+  exit;
+fi
+
+# Expand tilde just in case
+eval plist_dir=$LAUNCHUP_PLISTS
+
+# Called three times
+__launchup() {
+
+  src=$1
+  dest=$2
+  owner=$3
+  sudo=""
+  [[ $owner = "root" ]] && sudo="sudo"
+
+  # Look for all matching plists of this type
+  for path in $plist_dir/$src.*.plist; do
+    if [ -f $path ]; then
+      plist=$(basename "$path")
+
+      # Copy plist & actually use environment variables
+      echo "Copying & loading: $plist"
+      $sudo __cp "$path" "$dest/$plist"
+
+      # Set those finicky permissions
+      $sudo chown $owner:staff "$dest/$plist"
+      $sudo chmod 644 "$dest/$plist"
+
+      # Load copied plist
+      $sudo launchctl load "$dest/$plist"
+    fi
+    echo ""
+  done
+}
+
+
+# Copy plist to destination, expanding environment variables long the way
+__cp() {
+  input=$1
+  output=$2
+  rm -f $output
+
+  # Search and replace
+  # http://stackoverflow.com/questions/2914220/
+  cat $input | \
+  while read line ; do
+    while [[ "$line" =~ (\$[a-zA-Z_][a-zA-Z_0-9]*) ]] ; do
+      LHS=${BASH_REMATCH[1]}
+      RHS="$(eval echo "\"$LHS\"")"
+      line=${line//$LHS/$RHS}
+    done
+    echo $line >> $output
+  done
+}
+
+
+echo ""
+echo "Global Daemons:"
+echo "---------------"
+__launchup global.daemon /Library/LaunchDaemons root
+               
+echo "Global Agents:"
+echo "--------------"
+__launchup global.agent /Library/LaunchAgents root
+
+echo "User Agents:"
+echo "------------"
+__launchup user.agent $HOME/Library/LaunchAgents $USER
+

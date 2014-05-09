@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# 2014 Jon Suderman
+# https://github.com/suderman/launchup/
+
+if [ -z $LAUNCHUP_PLISTS ]; then
+  echo "Error: LAUNCHUP_PLISTS environment variable is empty!"
+  echo "Please tell launchdn which directory to find your plists."
+  echo "For example:"
+  echo "export LAUNCHUP_PLISTS=\"~/.launchd\""
+  exit;
+fi
+
+# Expand tilde just in case
+eval plist_dir=$LAUNCHUP_PLISTS
+
+# Called three times
+__launchdn() {
+
+  src=$1
+  dest=$2
+  owner=$3
+  sudo=""
+  [[ $owner = "root" ]] && sudo="sudo"
+
+  # Look for all matching plists of this type
+  for path in $plist_dir/$src.*.plist; do
+    if [ -f $path ]; then
+      plist=$(basename "$path")
+      echo "Unloading & deleting: $plist"
+
+      # Unload the plist if it exists
+      if [ -f "$dest/$plist" ]; then
+        $sudo launchctl unload "$dest/$plist"
+      fi
+
+      # Delete the plist
+      $sudo rm -f "$dest/$plist"
+    fi
+    echo ""
+  done
+}
+
+echo ""
+echo "Global Daemons:"
+echo "---------------"
+__launchdn global.daemon /Library/LaunchDaemons root
+               
+echo "Global Agents:"
+echo "--------------"
+__launchdn global.agent /Library/LaunchAgents root
+
+echo "User Agents:"
+echo "------------"
+__launchdn user.agent $HOME/Library/LaunchAgents $USER
+
