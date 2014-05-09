@@ -4,7 +4,7 @@
 # https://github.com/suderman/launchup/
 
 # Open a terminal and run this command:
-# curl https://launchup.suderman.io/install | sh
+# curl launchup.suderman.io/install | sh
 
 # Ensure /usr/local/bin exists
 if [ ! -d "/usr/local" ]; then
