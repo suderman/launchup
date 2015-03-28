@@ -7,4 +7,4 @@ Install
 -------
 Open a terminal and run this command:  
 
-`curl launchup.suderman.io/install | sh`  
+`curl suderman.github.io/launchup/install | sh`  
